@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Збір підписів – Гіссен 2026</title>
+  <meta name="description" content="Дашборд збору підписів для виборів Ради іноземців 2026 у Гіссені." />
+
+  <style>
+    :root{
+      --bgTop:#475569;  /* heller */
+      --bgBot:#1e293b;
+
+      --card: rgba(255,255,255,.10);
+      --stroke: rgba(148,163,184,.45);
+
+      --text: #f8fafc;
+      --muted:#e2e8f0;
+
+      --shadow: 0 20px 55px rgba(0,0,0,.30);
+
+      --r-xl: 26px;
+      --r-lg: 18px;
+
+      /* progress colors */
+      --c-low:  #ef4444; /* red */
+      --c-mid:  #f59e0b; /* yellow */
+      --c-high: #22c55e; /* green */
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      min-height:100vh;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 15% 0%, rgba(96,165,250,.35), transparent 60%),
+        radial-gradient(circle at 85% 0%, rgba(251,146,60,.35), transparent 60%),
+        radial-gradient(circle at 50% 100%, rgba(34,197,94,.25), transparent 65%),
+        linear-gradient(180deg, var(--bgTop), var(--bgBot));
+      display:flex;
+      justify-content:center;
+      padding:18px 12px 28px;
+    }
+
+    .shell{
+      width:100%;
+      max-width:920px;
+      border:1px solid rgba(148,163,184,.55);
+      border-radius:30px;
+      box-shadow:var(--shadow);
+      background:linear-gradient(145deg, rgba(255,255,255,.08), rgba(255,255,255,.06));
+      backdrop-filter: blur(14px);
+      overflow:hidden;
+    }
+
+    /* HEADER */
+    header{
+      padding:16px 16px 10px;
+    }
+
+    .top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap; /* mobile fix */
+    }
+
+    .brand{
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      min-width:0;
+      flex: 1 1 320px;
+    }
+
+    .logo{
+      width:44px;height:44px;
+      border-radius:14px;
+      border:1px solid rgba(148,163,184,.55);
+      background:rgba(255,255,255,.12);
+      display:grid;
+      place-items:center;
+      flex: 0 0 auto;
+    }
+
+    h1{
+      font-size:1.2rem;
+      line-height:1.2;
+      letter-spacing:.01em;
+      margin-top:2px;
+      /* wichtig: nicht abschneiden */
+      white-space:normal;
+      overflow:visible;
+      text-overflow:clip;
+      word-break:break-word;
+    }
+
+    .desc{
+      margin-top:6px;
+      color:var(--muted);
+      font-size:.92rem;
+      line-height:1.5;
+      max-width:640px;
+      word-break:break-word;
+    }
+
+    .lang{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      background:rgba(255,255,255,.10);
+      border:1px solid rgba(148,163,184,.45);
+      border-radius:999px;
+      padding:6px;
+      flex: 0 0 auto;
+    }
+    .lang button{
+      border:0;
+      background:transparent;
+      color:var(--text);
+      font-size:.88rem;
+      padding:6px 10px;
+      border-radius:999px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      opacity:.88;
+      transition: .15s ease;
+      user-select:none;
+    }
+    .lang button[aria-pressed="true"]{
+      background:rgba(255,255,255,.14);
+      opacity:1;
+    }
+
+    .flag{
+      width:18px;height:12px;border-radius:3px;
+      box-shadow:0 0 0 1px rgba(255,255,255,.18) inset;
+      flex:0 0 auto;
+    }
+
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      padding:10px 16px 6px;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.45);
+      background:rgba(255,255,255,.10);
+      color:var(--muted);
+      font-size:.84rem;
+      white-space:nowrap;
+    }
+    .dot{
+      width:8px;height:8px;border-radius:50%;
+      background:#22c55e;
+      box-shadow:0 0 0 5px rgba(34,197,94,.16);
+    }
+    .chip strong{color:var(--text); font-weight:700;}
+
+    /* MAIN */
+    main{
+      padding:12px 16px 18px;
+    }
+
+    .card{
+      border-radius: var(--r-xl);
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.12);
+      box-shadow: 0 14px 40px rgba(0,0,0,.18);
+      padding:16px;
+      overflow:hidden;
+      position:relative;
+    }
+    .card::after{
+      content:"";
+      position:absolute; inset:0;
+      background: linear-gradient(to bottom right, rgba(255,255,255,.10), transparent 55%);
+      opacity:.8;
+      pointer-events:none;
+    }
+
+    .card h2{
+      position:relative; z-index:1;
+      font-size:1.02rem;
+      letter-spacing:.01em;
+    }
+    .sub{
+      position:relative; z-index:1;
+      margin-top:4px;
+      color:var(--muted);
+      font-size:.88rem;
+      line-height:1.45;
+    }
+
+    .list{
+      position:relative; z-index:1;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      margin-top:14px;
+    }
+
+    .item{
+      border-radius: var(--r-lg);
+      border:1px solid rgba(148,163,184,.45);
+      background: rgba(255,255,255,.10);
+      padding:12px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .itemHead{
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .name{
+      font-weight:800;
+      letter-spacing:.01em;
+    }
+    .pct{
+      font-weight:900;
+      font-size:.95rem;
+      opacity:.95;
+    }
+
+    /* PROGRESS */
+    .progressWrap{
+      margin-top:10px;
+      position:relative;
+    }
+
+    .track{
+      height:18px;               /* größer */
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.40);
+      background: rgba(15,23,42,.22);
+      overflow:hidden;
+    }
+
+    .badgeRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+
+    .fill{
+      height:100%;
+      width:0%;
+      border-radius:999px;
+      transition: width .6s ease-out;
+      position:relative;
+    }
+    .fill::after{
+      content:"";
+      position:absolute; inset:0;
+      background-image: linear-gradient(120deg, rgba(255,255,255,.45) 0, rgba(255,255,255,.08) 40%, transparent 65%);
+      opacity:.65;
+      mix-blend-mode: soft-light;
+    }
+
+    /* Mindestziel Marker (Dreieck) */
+    .minMarker{
+      position:absolute;
+      top:-9px;
+      width:0;height:0;
+      border-left:7px solid transparent;
+      border-right:7px solid transparent;
+      border-bottom:9px solid rgba(255,255,255,.90);
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,.25));
+      transform: translateX(-50%);
+    }
+    .minMarker::after{
+      content:"";
+      position:absolute;
+      left:-6px;
+      top:8px;
+      width:12px;
+      height:2px;
+      border-radius:2px;
+      background: rgba(255,255,255,.70);
+    }
+
+    .row{
+      margin-top:10px;
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      color:var(--muted);
+      font-size:.86rem;
+    }
+    .row strong{color:var(--text); font-weight:800}
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:4px 10px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.45);
+      background: rgba(255,255,255,.10);
+      color:var(--muted);
+      font-size:.82rem;
+      white-space:nowrap;
+    }
+    .pill b{color:var(--text); font-weight:900}
+
+    /* GAMIFICATION */
+    .leader{
+      margin-top:14px;
+      padding:12px 12px;
+      border-radius: var(--r-lg);
+      border:1px dashed rgba(148,163,184,.60);
+      background: rgba(255,255,255,.10);
+      color:var(--muted);
+      font-size:.9rem;
+      line-height:1.45;
+      position:relative; z-index:1;
+    }
+    .leader b{color:var(--text)}
+    .hl{font-weight:900}
+
+    /* Celebration FX overlay */
+    #fxWrap{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      opacity:0;
+      transition: opacity .25s ease;
+      z-index:9999;
+    }
+    #fxWrap.show{opacity:1}
+    #fx{
+      width:100%;
+      height:100%;
+      display:block;
+    }
+    .toast{
+      position:fixed;
+      left:50%;
+      transform:translateX(-50%);
+      bottom:18px;
+      max-width:min(560px, calc(100% - 22px));
+      padding:12px 14px;
+      border-radius:16px;
+      border:1px solid rgba(148,163,184,.55);
+      background: rgba(15,23,42,.55);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 18px 45px rgba(0,0,0,.35);
+      opacity:0;
+      transition: opacity .25s ease, transform .25s ease;
+      z-index:10000;
+    }
+    .toast.show{
+      opacity:1;
+      transform:translateX(-50%) translateY(-4px);
+    }
+    .toast h3{font-size:1rem;margin-bottom:2px}
+    .toast p{color:var(--muted);font-size:.9rem;line-height:1.35}
+
+    /* Mobile spacing */
+    @media (max-width:520px){
+      header{padding:14px 14px 10px}
+      main{padding:10px 14px 16px}
+      .chips{padding:10px 14px 4px}
+      h1{font-size:1.15rem}
+      .desc{font-size:.95rem}
+    }
+  </style>
+</head>
+
+<body>
+  <div id="fxWrap"><canvas id="fx"></canvas></div>
+
+  <div class="shell">
+    <header>
+      <div class="top">
+        <div class="brand">
+          <div class="logo" aria-hidden="true">📋</div>
+          <div>
+            <h1 id="t_title">Збір підписів</h1>
+            <div class="desc" id="t_desc">
+              Ми збираємо підтримувальні підписи, щоб балотуватися на виборах Ради іноземців 2026 року в Гіссені.
+            </div>
+          </div>
+        </div>
+
+        <div class="lang" role="group" aria-label="Language switcher">
+          <button id="btnUA" type="button" aria-pressed="true" title="Українська">
+            <img class="flag" alt="UA" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='12' viewBox='0 0 18 12'><rect width='18' height='6' y='0' fill='%23005BBB'/><rect width='18' height='6' y='6' fill='%23FFD500'/></svg>">
+            UA
+          </button>
+          <button id="btnDE" type="button" aria-pressed="false" title="Deutsch">
+            <img class="flag" alt="DE" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='12' viewBox='0 0 18 12'><rect width='18' height='4' y='0' fill='%23000'/><rect width='18' height='4' y='4' fill='%23D00'/><rect width='18' height='4' y='8' fill='%23FFCE00'/></svg>">
+            DE
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="chips">
+      <div class="chip"><span class="dot" aria-hidden="true"></span><span id="t_live"><strong>Онлайн</strong> · оновлюється вручну</span></div>
+      <div class="chip" id="lastUpdateChip">Останнє оновлення: <strong>—</strong></div>
+    </div>
+
+    <main>
+      <section class="card" aria-label="Listenvergleich">
+        <h2 id="t_lists">Списки</h2>
+        <div class="sub" id="t_lists_sub">Місто та район — невелике змагання до фінішу.</div>
+
+        <div class="list" id="campaignList"></div>
+
+        <div class="leader" id="leaderBox">—</div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <h3 id="toastTitle">—</h3>
+    <p id="toastText">—</p>
+  </div>
+
+<script>
+  // ===== i18n =====
+  const I18N = {
+    uk: {
+      title: "Збір підписів",
+      desc: "Ми збираємо підтримувальні підписи, щоб балотуватися на виборах Ради іноземців 2026 року в Гіссені.",
+      live: "<strong>Онлайн</strong> · оновлюється вручну",
+      lastUpdate: "Останнє оновлення:",
+      lists: "Списки",
+      listsSub: "Місто та район — невелике змагання до фінішу.",
+      minGoal: "Мінімум",
+      maxGoal: "Бажано досягти",
+      collected: "Зібрано",
+      remainingToMax: "До бажаного",
+      remainingToMin: "До мінімуму",
+      leaderTitle: "Хто попереду зараз?",
+      leaderTie: "Нічия — обидва списки на однаковому рівні.",
+      leaderText: (nameA, pctA, nameB, pctB) => `${nameA} попереду: <b>${pctA}%</b> ( ${nameB}: ${pctB}% ).`,
+      reachedMaxTitle: "Фініш! 🎉",
+      reachedMaxText: (name) => `${name} досяг максимуму. Дякуємо!`,
+      bothReachedTitle: "Обидва фінішували! 🚀",
+      bothReachedText: "Місто та район досягли максимуму. Супер!",
+    },
+    de: {
+      title: "Unterschriftensammlung",
+      desc: "Wir sammeln Unterstützungsunterschriften, um zur Ausländerbeiratswahl 2026 in Gießen anzutreten.",
+      live: "<strong>Live</strong> · manuell aktualisiert",
+      lastUpdate: "Letztes hookup:".replace("hookup","Update:"), // kleiner Trick, um Tippfehler zu vermeiden in Copy/Paste
+      lists: "Listen",
+      listsSub: "Stadt und Landkreis – kleiner Wettkampf bis zur Ziellinie.",
+      minGoal: "Minimum",
+      maxGoal: "Maximum",
+      collected: "Gesammelt",
+      remainingToMax: "Bis Maximum",
+      remainingToMin: "Bis Minimum",
+      leaderTitle: "Wer führt gerade?",
+      leaderTie: "Gleichstand – beide Listen sind gleich weit.",
+      leaderText: (nameA, pctA, nameB, pctB) => `${nameA} führt: <b>${pctA}%</b> ( ${nameB}: ${pctB}% ).`,
+      reachedMaxTitle: "Ziellinie! 🎉",
+      reachedMaxText: (name) => `${name} hat das Maximum erreicht. Danke!`,
+      bothReachedTitle: "Beide Ziele erreicht! 🚀",
+      bothReachedText: "Stadt und Landkreis haben das Maximum erreicht. Stark!",
+    }
+  };
+
+  // ===== state =====
+  const state = {
+    lang: "uk",            // Start immer Ukrainisch
+    data: null,
+    celebratedKey: null,
+    fxRunning: false,
+    fxStopAt: 0
+  };
+
+  // ===== dom =====
+  const el = (id) => document.getElementById(id);
+  const els = {
+    btnUA: el("btnUA"),
+    btnDE: el("btnDE"),
+    t_title: el("t_title"),
+    t_desc: el("t_desc"),
+    t_live: el("t_live"),
+    lastUpdateChip: el("lastUpdateChip"),
+    t_lists: el("t_lists"),
+    t_lists_sub: el("t_lists_sub"),
+    campaignList: el("campaignList"),
+    leaderBox: el("leaderBox"),
+    toast: el("toast"),
+    toastTitle: el("toastTitle"),
+    toastText: el("toastText"),
+    fxWrap: el("fxWrap"),
+    fx: el("fx"),
+  };
+
+  function setLang(lang){
+    state.lang = lang;
+    document.documentElement.lang = lang === "uk" ? "uk" : "de";
+
+    els.btnUA.setAttribute("aria-pressed", lang === "uk" ? "true" : "false");
+    els.btnDE.setAttribute("aria-pressed", lang === "de" ? "true" : "false");
+
+    const t = I18N[lang];
+    els.t_title.textContent = t.title;
+    els.t_desc.textContent = t.desc;
+    els.t_live.innerHTML = t.live;
+    els.t_lists.textContent = t.lists;
+    els.t_lists_sub.textContent = t.listsSub;
+
+    render();
+  }
+
+  els.btnUA.addEventListener("click", () => setLang("uk"));
+  els.btnDE.addEventListener("click", () => setLang("de"));
+
+  // ===== helpers =====
+  const clamp = (v,min,max) => Math.min(max, Math.max(min,v));
+  const fmtPct = (p) => (Math.round(p*10)/10).toFixed(1);
+
+  function fmtDate(iso){
+    if(!iso) return "—";
+    const d = new Date(iso);
+    if(Number.isNaN(d.getTime())) return "—";
+    const locale = state.lang === "uk" ? "uk-UA" : "de-DE";
+    return new Intl.DateTimeFormat(locale, {
+      year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit"
+    }).format(d);
+  }
+
+  function nameForLang(c){
+    return state.lang === "uk" ? (c.name_uk || c.name_de || c.id) : (c.name_de || c.name_uk || c.id);
+  }
+
+  // Progress logic:
+  // - fill uses collected/maxGoal
+  // - min marker at minGoal/maxGoal
+  // - bar color depends on percent to maxGoal: <40 red, <75 yellow, else green
+  function colorForPct(p){
+    if(p < 40) return getCss("--c-low");
+    if(p < 75) return getCss("--c-mid");
+    return getCss("--c-high");
+  }
+  function getCss(varName){
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  }
+
+  function compute(){
+    const campaigns = (state.data?.campaigns || []).map(c => {
+      const minGoal = Number(c.minGoal ?? 0);
+      const maxGoal = Number(c.maxGoal ?? 0);
+      const collected = Number(c.collected ?? 0);
+
+      const pctMax = maxGoal > 0 ? clamp((collected / maxGoal) * 100, 0, 120) : 0;
+      const minPos = maxGoal > 0 ? clamp((minGoal / maxGoal) * 100, 0, 100) : 0;
+
+      const remainingToMax = Math.max(maxGoal - collected, 0);
+      const remainingToMin = Math.max(minGoal - collected, 0);
+
+      const reachedMax = maxGoal > 0 && collected >= maxGoal;
+
+      return {
+        ...c,
+        minGoal, maxGoal, collected,
+        pctMax, minPos,
+        remainingToMax,
+        remainingToMin,
+        reachedMax
+      };
+    });
+
+    const allReached = campaigns.length > 0 && campaigns.every(c => c.reachedMax);
+    return { campaigns, allReached };
+  }
+
+  // ===== render =====
+  function render(){
+    if(!state.data) return;
+    const t = I18N[state.lang];
+
+    els.lastUpdateChip.innerHTML = `${t.lastUpdate} <strong>${fmtDate(state.data.lastUpdated)}</strong>`;
+
+    const s = compute();
+    // list
+    els.campaignList.innerHTML = "";
+
+    s.campaigns.forEach(c => {
+      const name = nameForLang(c);
+      const pctLabel = fmtPct(clamp(c.pctMax,0,100)); // for display (0..100)
+      const fillColor = colorForPct(clamp(c.pctMax,0,100));
+
+      const item = document.createElement("div");
+      item.className = "item";
+
+      item.innerHTML = `
+        <div class="itemHead">
+          <div class="name">${name}</div>
+          <div class="pct">${pctLabel}%</div>
+        </div>
+
+        <div class="progressWrap">
+          <div class="minMarker" style="left:${c.minPos}%;" title="${t.minGoal}: ${c.minGoal}"></div>
+
+          <div class="track" aria-hidden="true">
+            <div class="fill" style="width:${clamp(c.pctMax,0,100)}%; background:${fillColor};"></div>
+          </div>
+        </div>
+
+        <div class="badgeRow">
+          <div class="pill">${t.collected}: <b>${c.collected}</b></div>
+          <div class="pill">${t.minGoal}: <b>${c.minGoal}</b></div>
+          <div class="pill">${t.maxGoal}: <b>${c.maxGoal}</b></div>
+        </div>
+
+        <div class="row">
+          <div>${t.remainingToMin}: <strong>${c.remainingToMin}</strong></div>
+          <div>${t.remainingToMax}: <strong>${c.remainingToMax}</strong></div>
+        </div>
+      `;
+
+      els.campaignList.appendChild(item);
+    });
+
+    // leader gamification (by pctMax)
+    if(s.campaigns.length >= 2){
+      const sorted = [...s.campaigns].sort((a,b)=> b.pctMax - a.pctMax);
+      const a = sorted[0], b = sorted[1];
+      const leaderTitle = `<b>${t.leaderTitle}</b><br/>`;
+      if(Math.abs(a.pctMax - b.pctMax) < 0.05){
+        els.leaderBox.innerHTML = leaderTitle + t.leaderTie;
+      } else {
+        els.leaderBox.innerHTML = leaderTitle + t.leaderText(
+          nameForLang(a), fmtPct(clamp(a.pctMax,0,100)),
+          nameForLang(b), fmtPct(clamp(b.pctMax,0,100))
+        );
+      }
+    } else {
+      els.leaderBox.innerHTML = `<b>${t.leaderTitle}</b><br/>—`;
+    }
+
+    // celebration once per update
+    maybeCelebrate(s);
+  }
+
+  // ===== celebration =====
+  function showToast(title, text){
+    els.toastTitle.textContent = title;
+    els.toastText.textContent = text;
+    els.toast.classList.add("show");
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(()=> els.toast.classList.remove("show"), 5200);
+  }
+
+  function maybeCelebrate(s){
+    const t = I18N[state.lang];
+    const key = state.data?.lastUpdated || "x";
+    if(state.celebratedKey === key) return;
+
+    const reached = s.campaigns.filter(c => c.reachedMax);
+    if(reached.length === 0) return;
+
+    state.celebratedKey = key;
+
+    if(s.allReached){
+      showToast(t.bothReachedTitle, t.bothReachedText);
+      startFx(10000);
+    } else {
+      const first = reached[0];
+      showToast(t.reachedMaxTitle, t.reachedMaxText(nameForLang(first)));
+      startFx(7000);
+    }
+  }
+
+  // Starfall FX (leicht, aber "cool")
+  let ctx, W, H, stars = [];
+  function resizeFx(){
+    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    W = window.innerWidth;
+    H = window.innerHeight;
+    els.fx.width = Math.floor(W * dpr);
+    els.fx.height = Math.floor(H * dpr);
+    els.fx.style.width = W + "px";
+    els.fx.style.height = H + "px";
+    ctx = els.fx.getContext("2d");
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  function rand(a,b){ return a + Math.random()*(b-a); }
+  function makeStar(){
+    const big = Math.random() < 0.14;
+    const r = big ? rand(3.2, 6.4) : rand(1.4, 3.2);
+    const palette = [
+      `rgba(34,197,94,`,   // green
+      `rgba(245,158,11,`,  // yellow
+      `rgba(239,68,68,`,   // red
+      `rgba(255,255,255,`  // white sparkle
+    ];
+    const c = palette[Math.floor(Math.random()*palette.length)];
+    return {
+      x: rand(0, W),
+      y: rand(-H, -20),
+      vy: rand(1.3, 4.6) * (big ? 1.15 : 1),
+      vx: rand(-0.35, 0.35),
+      r,
+      rot: rand(0, Math.PI*2),
+      vr: rand(-0.07, 0.07),
+      a: rand(0.35, 1),
+      c
+    };
+  }
+  function spawnStars(n){
+    stars = [];
+    for(let i=0;i<n;i++) stars.push(makeStar());
+  }
+  function drawStar(x,y,r,rot,alpha,colorPrefix){
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(rot);
+    ctx.globalAlpha = alpha;
+    ctx.beginPath();
+    const spikes = 5;
+    const outer = r;
+    const inner = r*0.45;
+    for(let i=0;i<spikes*2;i++){
+      const ang = (Math.PI/spikes) * i;
+      const rad = (i%2===0) ? outer : inner;
+      ctx.lineTo(Math.cos(ang)*rad, Math.sin(ang)*rad);
+    }
+    ctx.closePath();
+    ctx.fillStyle = colorPrefix + alpha + ")";
+    ctx.fill();
+    ctx.restore();
+  }
+  function tickFx(now){
+    if(!state.fxRunning) return;
+    if(now > state.fxStopAt){ stopFx(); return; }
+    ctx.clearRect(0,0,W,H);
+
+    for(const s of stars){
+      s.x += s.vx;
+      s.y += s.vy;
+      s.rot += s.vr;
+      s.a += rand(-0.03, 0.03);
+      s.a = clamp(s.a, 0.2, 1);
+
+      drawStar(s.x, s.y, s.r, s.rot, s.a, s.c);
+
+      if(s.y > H + 30){
+        s.x = rand(0, W);
+        s.y = rand(-220, -20);
+        s.vy = rand(1.3, 4.6);
+      }
+    }
+    requestAnimationFrame(tickFx);
+  }
+  function startFx(durationMs){
+    if(state.fxRunning){
+      state.fxStopAt = performance.now() + durationMs;
+      return;
+    }
+    state.fxRunning = true;
+    state.fxStopAt = performance.now() + durationMs;
+    els.fxWrap.classList.add("show");
+    resizeFx();
+    const n = Math.min(200, Math.max(90, Math.floor((W*H)/16000)));
+    spawnStars(n);
+    requestAnimationFrame(tickFx);
+  }
+  function stopFx(){
+    state.fxRunning = false;
+    els.fxWrap.classList.remove("show");
+    if(ctx) ctx.clearRect(0,0,W,H);
+  }
+  window.addEventListener("resize", ()=>{ if(state.fxRunning) resizeFx(); });
+
+  // ===== data load =====
+  async function loadData(){
+    const res = await fetch("signatures.json?ts=" + Date.now(), { cache: "no-store" });
+    if(!res.ok) throw new Error("signatures.json konnte nicht geladen werden");
+    return await res.json();
+  }
+
+  (async function init(){
+    // Start immer Ukrainisch (wie gewünscht).
+    // Wenn du trotzdem merkt: du willst dir die Sprache merken -> sag Bescheid, dann bauen wir localStorage wieder ein.
+    setLang("uk");
+
+    try{
+      state.data = await loadData();
+      render();
+    }catch(e){
+      console.error(e);
+      showToast("⚠️", "signatures.json konnte nicht geladen werden. Bitte lokal über http testen (Live Server / python -m http.server).");
+    }
+  })();
+</script>
+</body>
+</html>
