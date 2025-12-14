@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2025-12-14T18:40:00+01:00",
+  "lastUpdated": "2025-12-14T15:40:00+01:00",
   "campaigns": [
     { "id": "kreis", "name_de": "Landkreis Gießen", "name_uk": "Район Гіссен", "collected": 16, "minGoal": 42, "maxGoal": 55 },
     { "id": "stadt", "name_de": "Stadt Gießen", "name_uk": "Місто Гіссен", "collected": 10, "minGoal": 62, "maxGoal": 78 }
