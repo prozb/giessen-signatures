@@ -1,25 +1,113 @@
-# Gießen Unterschriften-Dashboard (Netlify / Static)
+# Gießen Unterschriften-Dashboard (GitHub Pages / Static)
 
-## Dateien
-- `index.html` – Dashboard (DE/UA), lädt Daten aus `signatures.json`
-- `signatures.json` – Zahlen + lastUpdated
-- `admin.html` – Lokaler JSON-Generator (Download einer neuen `signatures.json`)
+Dieses Repository enthält ein **statisches, mobilfreundliches Dashboard** zur Darstellung des aktuellen Stands einer Unterschriftensammlung.
+
+Das Projekt ist bewusst **ohne Backend** umgesetzt und kann vollständig **kostenlos über GitHub Pages** betrieben werden.
+
+---
+
+## Zweck
+
+Das Dashboard visualisiert:
+
+- den aktuellen Stand mehrerer Listen (z. B. Stadt Gießen / Landkreis Gießen)
+- Fortschritt im Verhältnis zu **Minimalziel** und **Maximalziel**
+- eine einfache **Gamification** („Wer führt gerade?“)
+- das **Datum der letzten Aktualisierung**
+- Mehrsprachigkeit (Deutsch / Ukrainisch)
+
+Die Daten werden aus einer JSON-Datei geladen und manuell gepflegt.
+
+---
+
+## Projektstruktur
+
+```
+.
+├── README.md
+├── docs/                  # Öffentlicher Ordner für GitHub Pages
+│   ├── index.html         # Dashboard (DE / UA)
+│   └── signatures.json    # Aktuelle Zahlen und Ziele
+└── admin/
+    └── admin.html         # Lokaler JSON-Generator (nicht öffentlich deployen)
+```
+
+**Wichtig:**  
+GitHub Pages kann nur aus dem Root-Verzeichnis oder aus dem Ordner `/docs` veröffentlichen.  
+Deshalb liegt die Website bewusst im Ordner **`docs/`**.
+
+---
+
+## signatures.json – Datenformat
+
+```json
+{
+  "lastUpdated": "2025-12-14T18:40:00+01:00",
+  "campaigns": [
+    {
+      "id": "kreis",
+      "name_de": "Landkreis Gießen",
+      "name_uk": "Район Гіссен",
+      "collected": 21,
+      "minGoal": 50,
+      "maxGoal": 60
+    },
+    {
+      "id": "stadt",
+      "name_de": "Stadt Gießen",
+      "name_uk": "Місто Гіссен",
+      "collected": 32,
+      "minGoal": 50,
+      "maxGoal": 60
+    }
+  ]
+}
+```
+
+---
 
 ## Lokal testen
-Öffne `index.html` im Browser.
-Hinweis: Manche Browser blockieren `fetch()` bei `file://`.
-Am einfachsten:
-- VS Code → Live Server
-oder
-- Python: `python -m http.server 8000` (im Projektordner), dann `http://localhost:8000`
 
-## Netlify
-1. Repo an Netlify hängen (oder Ordner drag & drop)
-2. `signatures.json` aktualisieren (commit/push)
-3. Fertig.
+```bash
+cd docs
+python -m http.server 8000
+```
 
-## Update ohne JSON manuell zu editieren
-1. Öffne `admin.html` lokal
-2. Werte ändern
-3. `signatures.json herunterladen`
-4. Datei im Projekt ersetzen → commit/push
+Dann im Browser öffnen:
+
+```
+http://localhost:8000
+```
+
+---
+
+## Deployment auf GitHub Pages
+
+1. Repository auf GitHub erstellen (Public)
+2. Inhalte committen und pushen
+3. Repository → **Settings → Pages**
+4. Einstellungen:
+   - Source: Deploy from a branch
+   - Branch: main
+   - Folder: /docs
+5. Speichern
+
+Die Seite ist danach erreichbar unter:
+
+```
+https://USERNAME.github.io/REPOSITORY/
+```
+
+---
+
+## Aktualisierung der Zahlen
+
+1. `admin/admin.html` lokal öffnen
+2. Zahlen anpassen
+3. Neue `signatures.json` herunterladen
+4. Datei in `docs/signatures.json` ersetzen
+5. Commit & Push
+
+---
+
+© 2025 – Unterschriften-Dashboard
