@@ -148,6 +148,9 @@
       position:relative;z-index:1;
     }
     .ok{color:var(--ok);font-weight:900}
+
+    /* file input hidden */
+    #fileInput{ display:none; }
   </style>
 </head>
 
@@ -198,10 +201,13 @@
           </div>
 
           <div class="btns">
+            <button id="btnOpen">JSON öffnen</button>
             <button class="primary" id="btnDownload">signatures.json herunterladen</button>
             <button id="btnNow">Zeitstempel jetzt</button>
             <button id="btnValidate">Validieren</button>
           </div>
+
+          <input id="fileInput" type="file" accept="application/json,.json" />
 
           <div class="msg" id="msg">Status: —</div>
         </section>
@@ -228,6 +234,12 @@
 <script>
   const el = (id)=>document.getElementById(id);
 
+  // merkt sich die alten collected-Werte aus geladener JSON
+  const prev = {
+    stadt: null,
+    kreis: null
+  };
+
   function isoNow(){
     const d = new Date();
     const tzOffsetMin = -d.getTimezoneOffset();
@@ -243,7 +255,16 @@
     return Number.isFinite(n) ? n : fallback;
   }
 
+  function calcDelta(id, currentCollected){
+    const p = prev[id];
+    if(p === null || p === undefined) return 0; // wenn kein altes JSON geladen wurde
+    return currentCollected - p;
+  }
+
   function buildJson(){
+    const stadtCollected = num(el("stadtCollected").value, 0);
+    const kreisCollected = num(el("kreisCollected").value, 0);
+
     const data = {
       lastUpdated: el("lastUpdated").value || isoNow(),
       note: el("note").value || "",
@@ -252,7 +273,8 @@
           id: "stadt",
           name_de: "Stadt Gießen",
           name_uk: "Місто Гіссен",
-          collected: num(el("stadtCollected").value, 0),
+          collected: stadtCollected,
+          delta: calcDelta("stadt", stadtCollected),
           minGoal: num(el("stadtMin").value, 0),
           maxGoal: num(el("stadtMax").value, 50),
         },
@@ -260,7 +282,8 @@
           id: "kreis",
           name_de: "Landkreis Gießen",
           name_uk: "Район Гіссен",
-          collected: num(el("kreisCollected").value, 0),
+          collected: kreisCollected,
+          delta: calcDelta("kreis", kreisCollected),
           minGoal: num(el("kreisMin").value, 0),
           maxGoal: num(el("kreisMax").value, 50),
         }
@@ -281,6 +304,7 @@
       if(c.minGoal < 0) errs.push(`${c.id}: minGoal darf nicht negativ sein`);
       if(c.minGoal > c.maxGoal) errs.push(`${c.id}: minGoal darf nicht größer als maxGoal sein`);
       if(c.collected < 0) errs.push(`${c.id}: collected darf nicht negativ sein`);
+      if(!Number.isFinite(Number(c.delta))) errs.push(`${c.id}: delta ist ungültig`);
       if(c.collected > c.maxGoal * 3) errs.push(`${c.id}: collected wirkt zu groß (bitte prüfen)`);
     }
     return errs;
@@ -313,10 +337,52 @@
     setTimeout(()=> URL.revokeObjectURL(a.href), 1200);
   }
 
+  function applyJsonToForm(json){
+    // lastUpdated/note
+    if(json.lastUpdated) el("lastUpdated").value = String(json.lastUpdated);
+    if(json.note) el("note").value = String(json.note);
+
+    // campaigns
+    const camps = Array.isArray(json.campaigns) ? json.campaigns : [];
+    const byId = Object.fromEntries(camps.filter(c => c && c.id).map(c => [c.id, c]));
+
+    if(byId.stadt){
+      const c = byId.stadt;
+      el("stadtCollected").value = num(c.collected, 0);
+      el("stadtMin").value = num(c.minGoal, 0);
+      el("stadtMax").value = num(c.maxGoal, 50);
+      prev.stadt = num(c.collected, 0);
+    }
+
+    if(byId.kreis){
+      const c = byId.kreis;
+      el("kreisCollected").value = num(c.collected, 0);
+      el("kreisMin").value = num(c.minGoal, 0);
+      el("kreisMax").value = num(c.maxGoal, 50);
+      prev.kreis = num(c.collected, 0);
+    }
+
+    el("msg").innerHTML = "<span class='ok'>✅ JSON geladen.</span> Delta wird nun automatisch berechnet (neu - alt).";
+    renderPreview();
+  }
+
+  async function openJsonFile(file){
+    const text = await file.text();
+    let json;
+    try{
+      json = JSON.parse(text);
+    }catch(e){
+      el("msg").textContent = "⚠️ Datei ist kein gültiges JSON.";
+      return;
+    }
+    applyJsonToForm(json);
+  }
+
   // init
   el("lastUpdated").value = isoNow();
   renderPreview();
 
+  // watch changes
   const watch = [
     "stadtCollected","stadtMin","stadtMax",
     "kreisCollected","kreisMin","kreisMax",
@@ -337,6 +403,18 @@
   });
 
   el("btnDownload").addEventListener("click", downloadJson);
+
+  // JSON öffnen
+  el("btnOpen").addEventListener("click", ()=>{
+    el("fileInput").value = "";
+    el("fileInput").click();
+  });
+
+  el("fileInput").addEventListener("change", async (ev)=>{
+    const file = ev.target.files && ev.target.files[0];
+    if(!file) return;
+    await openJsonFile(file);
+  });
 </script>
 </body>
 </html>
