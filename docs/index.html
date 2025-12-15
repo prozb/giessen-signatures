@@ -53,10 +53,9 @@
       backdrop-filter: blur(14px);
       overflow:hidden;
 
-        /* WICHTIG */
-      display: flex;
-      flex-direction: column;
-      min-height: 100%;
+      display:flex;
+      flex-direction:column;
+      min-height:100%;
     }
 
     /* HEADER */
@@ -74,7 +73,7 @@
 
     .content-footer{
       margin-top: 18px;
-      padding: 14px 10px 6px;
+      padding: 14px 10px 10px;
       text-align: center;
       font-size: 0.8rem;
       color: var(--muted);
@@ -104,7 +103,6 @@
       line-height:1.2;
       letter-spacing:.01em;
       margin-top:2px;
-      /* wichtig: nicht abschneiden */
       white-space:normal;
       overflow:visible;
       text-overflow:clip;
@@ -142,7 +140,7 @@
       align-items:center;
       gap:8px;
       opacity:.88;
-      transition: .15s ease;
+      transition:.15s ease;
       user-select:none;
     }
     .lang button[aria-pressed="true"]{
@@ -184,7 +182,7 @@
 
     /* MAIN */
     main{
-      flex: 1;
+      flex:1;
       padding:12px 16px 18px;
     }
 
@@ -259,7 +257,7 @@
     }
 
     .track{
-      height:18px;               /* größer */
+      height:18px;
       border-radius:999px;
       border:1px solid rgba(148,163,184,.40);
       background: rgba(15,23,42,.22);
@@ -288,7 +286,6 @@
       mix-blend-mode: soft-light;
     }
 
-    /* Mindestziel Marker (Dreieck) */
     .minMarker{
       position:absolute;
       top:-9px;
@@ -335,6 +332,10 @@
       white-space:nowrap;
     }
     .pill b{color:var(--text); font-weight:900}
+
+    /* Delta pill styles (minimal) */
+    .pill.deltaPlus b{ color: var(--c-high); }
+    .pill.deltaMinus b{ color: var(--c-low); }
 
     /* GAMIFICATION */
     .leader{
@@ -443,13 +444,11 @@
 
         <div class="leader" id="leaderBox">—</div>
       </section>
-
-     
     </main>
 
-     <footer class="content-footer">
-        © <span id="year"></span> Rozbitski
-      </footer>
+    <footer class="content-footer">
+      © <span id="year"></span> Rozbitski
+    </footer>
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite">
@@ -470,6 +469,7 @@
       minGoal: "Мінімум",
       maxGoal: "Бажано досягти",
       collected: "Зібрано",
+      delta: "Змінилось",
       remainingToMax: "До бажаного",
       remainingToMin: "До мінімуму",
       leaderTitle: "Хто попереду зараз?",
@@ -484,12 +484,13 @@
       title: "Unterschriftensammlung",
       desc: "Wir sammeln Unterstützungsunterschriften, um zur Ausländerbeiratswahl 2026 in Gießen anzutreten.",
       live: "<strong>Live</strong> · manuell aktualisiert",
-      lastUpdate: "Letztes hookup:".replace("hookup","Update:"), // kleiner Trick, um Tippfehler zu vermeiden in Copy/Paste
+      lastUpdate: "Letztes Update:",
       lists: "Listen",
       listsSub: "Stadt und Landkreis – kleiner Wettkampf bis zur Ziellinie.",
       minGoal: "Minimum",
       maxGoal: "Maximum",
       collected: "Gesammelt",
+      delta: "Änderung",
       remainingToMax: "Bis Maximum",
       remainingToMin: "Bis Minimum",
       leaderTitle: "Wer führt gerade?",
@@ -504,7 +505,7 @@
 
   // ===== state =====
   const state = {
-    lang: "uk",            // Start immer Ukrainisch
+    lang: "uk",
     data: null,
     celebratedKey: null,
     fxRunning: false,
@@ -569,10 +570,6 @@
     return state.lang === "uk" ? (c.name_uk || c.name_de || c.id) : (c.name_de || c.name_uk || c.id);
   }
 
-  // Progress logic:
-  // - fill uses collected/maxGoal
-  // - min marker at minGoal/maxGoal
-  // - bar color depends on percent to maxGoal: <40 red, <75 yellow, else green
   function colorForPct(p){
     if(p < 40) return getCss("--c-low");
     if(p < 75) return getCss("--c-mid");
@@ -582,11 +579,31 @@
     return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
   }
 
+  function formatDelta(n){
+    const v = Number(n ?? 0);
+    if(!Number.isFinite(v) || v === 0) return "±0";
+
+    if(v > 0){
+      if(v >= 5) return "+" + v + " 🔥";
+      if(v >= 2) return "+" + v + " ⚡";
+      return "+" + v + " ✨";
+    }
+
+    return String(v);
+  }
+
+  function deltaClass(n){
+    const v = Number(n ?? 0);
+    if(!Number.isFinite(v) || v === 0) return "";
+    return v > 0 ? "deltaPlus" : "deltaMinus";
+  }
+
   function compute(){
     const campaigns = (state.data?.campaigns || []).map(c => {
       const minGoal = Number(c.minGoal ?? 0);
       const maxGoal = Number(c.maxGoal ?? 0);
       const collected = Number(c.collected ?? 0);
+      const delta = Number(c.delta ?? 0);
 
       const pctMax = maxGoal > 0 ? clamp((collected / maxGoal) * 100, 0, 120) : 0;
       const minPos = maxGoal > 0 ? clamp((minGoal / maxGoal) * 100, 0, 100) : 0;
@@ -598,7 +615,7 @@
 
       return {
         ...c,
-        minGoal, maxGoal, collected,
+        minGoal, maxGoal, collected, delta,
         pctMax, minPos,
         remainingToMax,
         remainingToMin,
@@ -618,12 +635,11 @@
     els.lastUpdateChip.innerHTML = `${t.lastUpdate} <strong>${fmtDate(state.data.lastUpdated)}</strong>`;
 
     const s = compute();
-    // list
     els.campaignList.innerHTML = "";
 
     s.campaigns.forEach(c => {
       const name = nameForLang(c);
-      const pctLabel = fmtPct(clamp(c.pctMax,0,100)); // for display (0..100)
+      const pctLabel = fmtPct(clamp(c.pctMax,0,100));
       const fillColor = colorForPct(clamp(c.pctMax,0,100));
 
       const item = document.createElement("div");
@@ -645,6 +661,7 @@
 
         <div class="badgeRow">
           <div class="pill">${t.collected}: <b>${c.collected}</b></div>
+          <div class="pill ${deltaClass(c.delta)}">${t.delta}: <b>${formatDelta(c.delta)}</b></div>
           <div class="pill">${t.minGoal}: <b>${c.minGoal}</b></div>
           <div class="pill">${t.maxGoal}: <b>${c.maxGoal}</b></div>
         </div>
@@ -675,7 +692,6 @@
       els.leaderBox.innerHTML = `<b>${t.leaderTitle}</b><br/>—`;
     }
 
-    // celebration once per update
     maybeCelebrate(s);
   }
 
@@ -708,7 +724,7 @@
     }
   }
 
-  // Starfall FX (leicht, aber "cool")
+  // Starfall FX (unverändert)
   let ctx, W, H, stars = [];
   function resizeFx(){
     const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
@@ -726,10 +742,10 @@
     const big = Math.random() < 0.14;
     const r = big ? rand(3.2, 6.4) : rand(1.4, 3.2);
     const palette = [
-      `rgba(34,197,94,`,   // green
-      `rgba(245,158,11,`,  // yellow
-      `rgba(239,68,68,`,   // red
-      `rgba(255,255,255,`  // white sparkle
+      `rgba(34,197,94,`,
+      `rgba(245,158,11,`,
+      `rgba(239,68,68,`,
+      `rgba(255,255,255,`
     ];
     const c = palette[Math.floor(Math.random()*palette.length)];
     return {
@@ -817,10 +833,7 @@
   }
 
   (async function init(){
-    // Start immer Ukrainisch (wie gewünscht).
-    // Wenn du trotzdem merkt: du willst dir die Sprache merken -> sag Bescheid, dann bauen wir localStorage wieder ein.
     setLang("uk");
-
     try{
       state.data = await loadData();
       render();
@@ -829,11 +842,8 @@
       showToast("⚠️", "signatures.json konnte nicht geladen werden. Bitte lokal über http testen (Live Server / python -m http.server).");
     }
   })();
-</script>
 
-<script>
   document.getElementById("year").textContent = new Date().getFullYear();
 </script>
-
 </body>
 </html>
