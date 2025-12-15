@@ -8,7 +8,7 @@
 
   <style>
     :root{
-      --bgTop:#475569;  /* heller */
+      --bgTop:#475569;
       --bgBot:#1e293b;
 
       --card: rgba(255,255,255,.10);
@@ -58,7 +58,6 @@
       min-height:100%;
     }
 
-    /* HEADER */
     header{
       padding:16px 16px 10px;
     }
@@ -68,7 +67,7 @@
       align-items:flex-start;
       justify-content:space-between;
       gap:12px;
-      flex-wrap:wrap; /* mobile fix */
+      flex-wrap:wrap;
     }
 
     .content-footer{
@@ -180,7 +179,6 @@
     }
     .chip strong{color:var(--text); font-weight:700;}
 
-    /* MAIN */
     main{
       flex:1;
       padding:12px 16px 18px;
@@ -254,6 +252,7 @@
     .progressWrap{
       margin-top:10px;
       position:relative;
+      padding-bottom:14px; /* Platz für Marker unter der Bar */
     }
 
     .track{
@@ -264,19 +263,13 @@
       overflow:hidden;
     }
 
-    .badgeRow{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:10px;
-    }
-
     .fill{
       height:100%;
       width:0%;
       border-radius:999px;
-      transition: width .6s ease-out;
+      transition: width .9s ease-out; /* etwas smoother */
       position:relative;
+      will-change: width;
     }
     .fill::after{
       content:"";
@@ -286,25 +279,24 @@
       mix-blend-mode: soft-light;
     }
 
+    /* ✅ Marker unter der Bar, zeigt nach oben */
     .minMarker{
       position:absolute;
-      top:-9px;
+      top: 26px;
       width:0;height:0;
       border-left:7px solid transparent;
       border-right:7px solid transparent;
-      border-bottom:9px solid rgba(255,255,255,.90);
+      border-bottom:9px solid rgba(255,255,255,.92); /* ▲ Dreieck zeigt nach oben */
       filter: drop-shadow(0 4px 6px rgba(0,0,0,.25));
       transform: translateX(-50%);
     }
-    .minMarker::after{
-      content:"";
-      position:absolute;
-      left:-6px;
-      top:8px;
-      width:12px;
-      height:2px;
-      border-radius:2px;
-      background: rgba(255,255,255,.70);
+  
+
+    .badgeRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:10px;
     }
 
     .row{
@@ -333,11 +325,9 @@
     }
     .pill b{color:var(--text); font-weight:900}
 
-    /* Delta pill styles (minimal) */
     .pill.deltaPlus b{ color: var(--c-high); }
     .pill.deltaMinus b{ color: var(--c-low); }
 
-    /* GAMIFICATION */
     .leader{
       margin-top:14px;
       padding:12px 12px;
@@ -350,9 +340,7 @@
       position:relative; z-index:1;
     }
     .leader b{color:var(--text)}
-    .hl{font-weight:900}
 
-    /* Celebration FX overlay */
     #fxWrap{
       position:fixed;
       inset:0;
@@ -390,7 +378,6 @@
     .toast h3{font-size:1rem;margin-bottom:2px}
     .toast p{color:var(--muted);font-size:.9rem;line-height:1.35}
 
-    /* Mobile spacing */
     @media (max-width:520px){
       header{padding:14px 14px 10px}
       main{padding:10px 14px 16px}
@@ -457,7 +444,6 @@
   </div>
 
 <script>
-  // ===== i18n =====
   const I18N = {
     uk: {
       title: "Збір підписів",
@@ -503,7 +489,6 @@
     }
   };
 
-  // ===== state =====
   const state = {
     lang: "uk",
     data: null,
@@ -512,7 +497,6 @@
     fxStopAt: 0
   };
 
-  // ===== dom =====
   const el = (id) => document.getElementById(id);
   const els = {
     btnUA: el("btnUA"),
@@ -552,7 +536,6 @@
   els.btnUA.addEventListener("click", () => setLang("uk"));
   els.btnDE.addEventListener("click", () => setLang("de"));
 
-  // ===== helpers =====
   const clamp = (v,min,max) => Math.min(max, Math.max(min,v));
   const fmtPct = (p) => (Math.round(p*10)/10).toFixed(1);
 
@@ -579,19 +562,13 @@
     return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
   }
 
+  // ⚡ Energie-Emoji bei positivem Delta
   function formatDelta(n){
     const v = Number(n ?? 0);
     if(!Number.isFinite(v) || v === 0) return "±0";
-
-    if(v > 0){
-      if(v >= 5) return "+" + v + " 🔥";
-      if(v >= 2) return "+" + v + " ⚡";
-      return "+" + v + " ✨";
-    }
-
+    if(v > 0) return "+" + v + " ⚡";
     return String(v);
   }
-
   function deltaClass(n){
     const v = Number(n ?? 0);
     if(!Number.isFinite(v) || v === 0) return "";
@@ -627,7 +604,19 @@
     return { campaigns, allReached };
   }
 
-  // ===== render =====
+  // ✅ анимация: после рендера выставляем ширину fill из data-target
+  function animateFills(){
+    const fills = els.campaignList.querySelectorAll(".fill[data-target]");
+    requestAnimationFrame(() => {
+      fills.forEach(f => {
+        const target = Number(f.dataset.target || "0");
+        const color = f.dataset.color || "";
+        if(color) f.style.background = color;
+        f.style.width = target + "%";
+      });
+    });
+  }
+
   function render(){
     if(!state.data) return;
     const t = I18N[state.lang];
@@ -640,7 +629,8 @@
     s.campaigns.forEach(c => {
       const name = nameForLang(c);
       const pctLabel = fmtPct(clamp(c.pctMax,0,100));
-      const fillColor = colorForPct(clamp(c.pctMax,0,100));
+      const targetWidth = clamp(c.pctMax,0,100);
+      const fillColor = colorForPct(targetWidth);
 
       const item = document.createElement("div");
       item.className = "item";
@@ -652,11 +642,13 @@
         </div>
 
         <div class="progressWrap">
-          <div class="minMarker" style="left:${c.minPos}%;" title="${t.minGoal}: ${c.minGoal}"></div>
-
           <div class="track" aria-hidden="true">
-            <div class="fill" style="width:${clamp(c.pctMax,0,100)}%; background:${fillColor};"></div>
+            <!-- старт с 0%, потом анимируем к data-target -->
+            <div class="fill" style="width:0%" data-target="${targetWidth}" data-color="${fillColor}"></div>
           </div>
+
+          <!-- ✅ marker под bar -->
+          <div class="minMarker" style="left:${c.minPos}%;" title="${t.minGoal}: ${c.minGoal}"></div>
         </div>
 
         <div class="badgeRow">
@@ -675,7 +667,7 @@
       els.campaignList.appendChild(item);
     });
 
-    // leader gamification (by pctMax)
+    // leader
     if(s.campaigns.length >= 2){
       const sorted = [...s.campaigns].sort((a,b)=> b.pctMax - a.pctMax);
       const a = sorted[0], b = sorted[1];
@@ -693,9 +685,11 @@
     }
 
     maybeCelebrate(s);
+
+    // ✅ запускаем анимацию заполнения
+    animateFills();
   }
 
-  // ===== celebration =====
   function showToast(title, text){
     els.toastTitle.textContent = title;
     els.toastText.textContent = text;
@@ -825,7 +819,6 @@
   }
   window.addEventListener("resize", ()=>{ if(state.fxRunning) resizeFx(); });
 
-  // ===== data load =====
   async function loadData(){
     const res = await fetch("signatures.json?ts=" + Date.now(), { cache: "no-store" });
     if(!res.ok) throw new Error("signatures.json konnte nicht geladen werden");
