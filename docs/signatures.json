@@ -5,8 +5,8 @@
       "id": "kreis",
       "name_de": "Landkreis Gießen",
       "name_uk": "Район Гіссен",
-      "collected": 47,
-      "delta": 31,
+      "collected": 66,
+      "delta": 19,
       "minGoal": 42,
       "maxGoal": 55
     },
@@ -14,8 +14,8 @@
       "id": "stadt",
       "name_de": "Stadt Gießen",
       "name_uk": "Місто Гіссен",
-      "collected": 10,
-      "delta": 0,
+      "collected": 45,
+      "delta": 35,
       "minGoal": 62,
       "maxGoal": 78
     }
