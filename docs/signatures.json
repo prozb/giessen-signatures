@@ -5,8 +5,8 @@
       "id": "kreis",
       "name_de": "Landkreis Gießen",
       "name_uk": "Район Гіссен",
-      "collected": 66,
-      "delta": 19,
+      "collected": 65,
+      "delta": 18,
       "minGoal": 42,
       "maxGoal": 55
     },
