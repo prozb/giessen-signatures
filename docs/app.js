@@ -19,6 +19,13 @@ const I18N = {
       reachedMaxText: (name) => `${name} досяг максимуму. Дякуємо!`,
       bothReachedTitle: "Обидва фінішували! 🚀",
       bothReachedText: "Місто та район досягли максимуму. Супер!",
+      candidates: "Кандидати",
+      documents: "Документи",
+      status: "Статус",
+      statusStart: "Почати",
+      statusWork: "В процесі",
+      statusDone: "Готово",
+      missing: "ще"
     },
     de: {
       title: "Unterschriftensammlung",
@@ -40,6 +47,13 @@ const I18N = {
       reachedMaxText: (name) => `${name} hat das Maximum erreicht. Danke!`,
       bothReachedTitle: "Beide Ziele erreicht! 🚀",
       bothReachedText: "Stadt und Landkreis haben das Maximum erreicht. Stark!",
+      candidates: "Kandidaten",
+      documents: "Dokumente",
+      status: "Status",
+      statusStart: "Starten",
+      statusWork: "In Arbeit",
+      statusDone: "Fertig",
+      missing: "noch",
     },
     en: {
       title: "Signature collection",
@@ -61,6 +75,13 @@ const I18N = {
       reachedMaxText: (name) => `${name} reached the target. Thank you!`,
       bothReachedTitle: "Both finished! 🚀",
       bothReachedText: "City and district reached the target. Awesome!",
+      candidates: "Candidates",
+      documents: "Documents",
+      status: "Status",
+      statusStart: "Start",
+      statusWork: "In progress",
+      statusDone: "Done",
+      missing: "missing"
     }
   };
 
@@ -238,6 +259,22 @@ const I18N = {
       const targetWidth = clamp(c.pctMax,0,100);
       const fillColor = colorForPct(targetWidth);
 
+      const candidatesTotal = Number(c.candidatesTotal ?? 0);
+      const docsSubmitted = Number(c.docsSubmitted ?? 0);
+      const missingDocs = Math.max(candidatesTotal - docsSubmitted, 0);
+
+      let statusEmoji = "🔴";
+      let statusText = I18N[state.lang].statusStart;
+
+      if (candidatesTotal > 0 && docsSubmitted > 0 && docsSubmitted < candidatesTotal) {
+        statusEmoji = "🟡";
+        statusText = I18N[state.lang].statusWork;
+      }
+      if (candidatesTotal > 0 && docsSubmitted >= candidatesTotal) {
+        statusEmoji = "🟢";
+        statusText = I18N[state.lang].statusDone;
+      } 
+
       const item = document.createElement("div");
       item.className = "item";
 
@@ -264,9 +301,17 @@ const I18N = {
           <div class="pill">${t.maxGoal}: <b>${c.maxGoal}</b></div>
         </div>
 
-        <div class="row">
+        <!-- <div class="row">
           <div>${t.remainingToMin}: <strong>${c.remainingToMin}</strong></div>
           <div>${t.remainingToMax}: <strong>${c.remainingToMax}</strong></div>
+        </div> -->
+        
+        <div class="divider"></div>
+
+        <div class="badgeRow">
+          <div class="pill">${t.candidates}: <b>${candidatesTotal}</b></div>
+          <div class="pill">${t.documents}: <b>${docsSubmitted}/${candidatesTotal}</b></div>
+          <div class="pill">${t.status}: <b>${statusEmoji} ${statusText}${(candidatesTotal > 0 && docsSubmitted < candidatesTotal) ? ` (${t.missing} ${missingDocs})` : ""}</b></div>
         </div>
       `;
 

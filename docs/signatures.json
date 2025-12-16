@@ -9,7 +9,9 @@
       "collected": 148,
       "delta": 111,
       "minGoal": 42,
-      "maxGoal": 55
+      "maxGoal": 55,
+      "candidatesTotal": 19,
+      "docsSubmitted": 19
     },
     {
       "id": "stadt",
@@ -19,7 +21,9 @@
       "collected": 128,
       "delta": 118,
       "minGoal": 62,
-      "maxGoal": 78
+      "maxGoal": 78,
+      "candidatesTotal": 16,
+      "docsSubmitted": 15
     }
   ]
 }

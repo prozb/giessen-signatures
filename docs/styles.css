@@ -254,6 +254,18 @@ main{
     overflow:hidden;
 }
 
+.divider{
+  margin: 10px 0;
+  height: 1px;
+  width: 100%;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255,255,255,.35),
+    transparent
+  );
+}
+
 .fill{
     height:100%;
     width:0%;
