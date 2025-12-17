@@ -2,10 +2,12 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Збір підписів – Гіссен 2026</title>
-  <meta name="description" content="Дашборд збору підписів для виборів Ради іноземців 2026 у Гіссені." />
   
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Unterschriftensammlung – Gießen 2026</title>
+  <link rel="icon" type="image/svg+xml" href="logo.svg">
+
+  <meta name="description" content="Dashboard zur Unterschriftensammlung für die Wahl des Ausländerbeirats 2026 in Gießen." />
   <link rel="stylesheet" href="styles.css" />
 </head>
 
@@ -16,7 +18,11 @@
     <header>
       <div class="top">
         <div class="brand">
-          <div class="logo" aria-hidden="true">📋</div>
+          <!-- <div class="logo" aria-hidden="true">📋</div> -->
+          <div class="logo">
+            <img src="logo.svg" alt="Projektlogo">
+          </div>
+
           <div>
             <h1 id="t_title">Збір підписів</h1>
             <div class="desc" id="t_desc">
@@ -55,12 +61,12 @@
 
         <div class="list" id="campaignList"></div>
 
-        <div class="leader" id="leaderBox">—</div>
+        <!-- <div class="leader" id="leaderBox">—</div> -->
       </section>
     </main>
 
     <footer class="content-footer">
-      © <span id="year"></span> Rozbitski
+      © <span id="year"></span> Rozbitski weareathos v. 1.3.0
     </footer>
   </div>
 

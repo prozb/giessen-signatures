@@ -244,16 +244,26 @@ const I18N = {
     });
   }
 
-  function render(){
-    if(!state.data) return;
-    const t = I18N[state.lang];
+  function renderGroup(title, campaigns, t){
+    // Überschrift als kleines H3 in derselben Card
+    const h = document.createElement("div");
+    h.style.position = "relative";
+    h.style.zIndex = "1";
+    h.style.marginTop = "12px";
+    h.style.marginBottom = "8px";
+    h.innerHTML = `<div style="font-weight:800; letter-spacing:.01em;">${title}</div>`;
+    els.campaignList.appendChild(h);
 
-    els.lastUpdateChip.innerHTML = `${t.lastUpdate} <strong>${fmtDate(state.data.lastUpdated)}</strong>`;
+    if(!campaigns.length){
+      const empty = document.createElement("div");
+      empty.className = "item";
+      empty.style.opacity = "0.75";
+      empty.innerHTML = `<div class="name">—</div><div class="sub">${state.lang === "de" ? "Keine Listen vorhanden." : (state.lang === "en" ? "No lists available." : "Немає списків.")}</div>`;
+      els.campaignList.appendChild(empty);
+      return;
+    }
 
-    const s = compute();
-    els.campaignList.innerHTML = "";
-
-    s.campaigns.forEach(c => {
+    campaigns.forEach(c => {
       const name = nameForLang(c);
       const pctLabel = fmtPct(clamp(c.pctMax,0,100));
       const targetWidth = clamp(c.pctMax,0,100);
@@ -305,7 +315,7 @@ const I18N = {
           <div>${t.remainingToMin}: <strong>${c.remainingToMin}</strong></div>
           <div>${t.remainingToMax}: <strong>${c.remainingToMax}</strong></div>
         </div> -->
-        
+
         <div class="divider"></div>
 
         <div class="badgeRow">
@@ -318,27 +328,82 @@ const I18N = {
       els.campaignList.appendChild(item);
     });
 
+    renderLeaderForGroup(els.campaignList, campaigns, t);
+  }
+
+  function render(){
+    if(!state.data) return;
+    const t = I18N[state.lang];
+
+    els.lastUpdateChip.innerHTML = `${t.lastUpdate} <strong>${fmtDate(state.data.lastUpdated)}</strong>`;
+
+    const s = compute();
+    
+    els.campaignList.innerHTML = "";
+
+    const campaigns = s.campaigns;
+
+    // optionaler Fallback: wenn scope fehlt -> city
+    const cityCampaigns = campaigns.filter(c => (c.scope || "city") === "city");
+    const districtCampaigns = campaigns.filter(c => c.scope === "district");
+
+
+    els.campaignList.innerHTML = "";
+
+    const cityTitle = (state.lang === "de") ? "Stadt Gießen" : (state.lang === "en" ? "City of Gießen" : "Місто Гіссен");
+    const districtTitle = (state.lang === "de") ? "Landkreis Gießen" : (state.lang === "en" ? "District of Gießen" : "Район Гіссен");
+
+    renderGroup(districtTitle, districtCampaigns, t);
+    renderGroup(cityTitle, cityCampaigns, t);
+
     // leader
-    if(s.campaigns.length >= 2){
-      const sorted = [...s.campaigns].sort((a,b)=> b.pctMax - a.pctMax);
-      const a = sorted[0], b = sorted[1];
-      const leaderTitle = `<b>${t.leaderTitle}</b><br/>`;
-      if(Math.abs(a.pctMax - b.pctMax) < 0.05){
-        els.leaderBox.innerHTML = leaderTitle + t.leaderTie;
-      } else {
-        els.leaderBox.innerHTML = leaderTitle + t.leaderText(
-          nameForLang(a), fmtPct(clamp(a.pctMax,0,100)),
-          nameForLang(b), fmtPct(clamp(b.pctMax,0,100))
-        );
-      }
-    } else {
-      els.leaderBox.innerHTML = `<b>${t.leaderTitle}</b><br/>—`;
-    }
 
     maybeCelebrate(s);
 
     // ✅ запускаем анимацию заполнения
     animateFills();
+  }
+
+  function renderLeaderForGroup(container, campaigns, t){
+    if (!campaigns || campaigns.length === 0) {
+      const box = document.createElement("div");
+      box.className = "leader";
+      box.innerHTML = `<b>${t.leaderTitle}</b><br/>—`;
+      container.appendChild(box);
+      return;
+    }
+
+    if (campaigns.length === 1) {
+      const c = campaigns[0];
+      const name = nameForLang(c);
+      const pct = fmtPct(clamp(c.pctMax, 0, 100));
+
+      const box = document.createElement("div");
+      box.className = "leader";
+      box.innerHTML = `<b>${t.leaderTitle}</b><br/>${name}: <b>${pct}%</b>`;
+      container.appendChild(box);
+      return;
+    }
+
+    const sorted = [...campaigns].sort((a, b) => b.pctMax - a.pctMax);
+    const a = sorted[0];
+    const b = sorted[1];
+
+    const box = document.createElement("div");
+    box.className = "leader";
+
+    if (Math.abs(a.pctMax - b.pctMax) < 0.05) {
+      box.innerHTML = `<b>${t.leaderTitle}</b><br/>${t.leaderTie}`;
+    } else {
+      box.innerHTML =
+        `<b>${t.leaderTitle}</b><br/>` +
+        t.leaderText(
+          nameForLang(a), fmtPct(clamp(a.pctMax, 0, 100)),
+          nameForLang(b), fmtPct(clamp(b.pctMax, 0, 100))
+        );
+    }
+
+    container.appendChild(box);
   }
 
   function showToast(title, text){
