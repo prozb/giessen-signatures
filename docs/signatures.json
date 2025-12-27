@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2025-12-17T21:35:10+01:00",
+  "lastUpdated": "2025-12-27T22:35:10+01:00",
   "campaigns": [
     {
       "id": "kreis",
@@ -20,8 +20,8 @@
       "name_de": "Liste für internationale Zusammenarbeit (LIZ) Kreis Gießen",
       "name_uk": "Список міжнародної співпраці (ЛІЗ) округ Гіссен",
       "name_en":"List for International Cooperation (LIZ) District of Gießen",
-      "collected": 7,
-      "delta": 3,
+      "collected": 67,
+      "delta": 60,
       "minGoal": 42,
       "maxGoal": 55,
       "candidatesTotal": 20,
@@ -46,8 +46,8 @@
       "name_de": "Kurdistan Liste (KURD) Stadt Gießen",
       "name_uk": "Курдистанський список (КУРД) місто Гіссен",
       "name_en":"Kurdistan List (KURD) City of Gießen",
-      "collected": 0,
-      "delta": 0,
+      "collected": 41,
+      "delta": 41,
       "minGoal": 62,
       "maxGoal": 78,
       "candidatesTotal": 9,
