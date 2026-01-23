@@ -25,7 +25,11 @@ const I18N = {
       statusStart: "Почати",
       statusWork: "В процесі",
       statusDone: "Готово",
-      missing: "ще"
+      missing: "ще",
+      completionTitle: "🎉 Вітаємо! Все успішно завершено.",
+      completionAllSignatures: "Всі підписи зібрано",
+      completionAllListsApproved: "Всі списки затверджено",
+      completionPreparationCompleted: "Підготовку завершено"
     },
     de: {
       title: "Unterschriftensammlung",
@@ -54,6 +58,10 @@ const I18N = {
       statusWork: "In Arbeit",
       statusDone: "Fertig",
       missing: "noch",
+      completionTitle: "🎉 Herzlichen Glückwunsch! Alles wurde erfolgreich abgeschlossen.",
+      completionAllSignatures: "Alle Unterschriften gesammelt",
+      completionAllListsApproved: "Alle Listen genehmigt",
+      completionPreparationCompleted: "Vorbereitung abgeschlossen"
     },
     en: {
       title: "Signature collection",
@@ -81,7 +89,11 @@ const I18N = {
       statusStart: "Start",
       statusWork: "In progress",
       statusDone: "Done",
-      missing: "missing"
+      missing: "missing",
+      completionTitle: "🎉 Congratulations! Everything is completed successfully.",
+      completionAllSignatures: "All signatures collected",
+      completionAllListsApproved: "All lists approved",
+      completionPreparationCompleted: "Preparation completed"
     }
   };
 
@@ -107,6 +119,9 @@ const I18N = {
     t_lists_sub: el("t_lists_sub"),
     campaignList: el("campaignList"),
     leaderBox: el("leaderBox"),
+    completionBanner: el("completionBanner"),
+    completionTitle: el("completionTitle"),
+    completionStatus: el("completionStatus"),
     toast: el("toast"),
     toastTitle: el("toastTitle"),
     toastText: el("toastText"),
@@ -128,6 +143,16 @@ const I18N = {
     els.t_live.innerHTML = t.live;
     els.t_lists.textContent = t.lists;
     els.t_lists_sub.textContent = t.listsSub;
+    
+    // Update completion banner
+    if(els.completionTitle) els.completionTitle.textContent = t.completionTitle;
+    if(els.completionStatus) {
+      els.completionStatus.innerHTML = `
+        <div class="completion-item">✓ ${t.completionAllSignatures}</div>
+        <div class="completion-item">✓ ${t.completionAllListsApproved}</div>
+        <div class="completion-item">✓ ${t.completionPreparationCompleted}</div>
+      `;
+    }
 
     render();
   }

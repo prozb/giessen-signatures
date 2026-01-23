@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2025-12-27T22:35:10+01:00",
+  "lastUpdated": "2026-01-23T15:35:10+01:00",
   "campaigns": [
     {
       "id": "kreis",
@@ -7,8 +7,8 @@
       "name_de": "Ukraine Liste (UL) Kreis Gießen",
       "name_uk": "Український список (УЛ) округ Гіссен",
       "name_en":"Ukraine List (UL) District of Gießen",
-      "collected": 148,
-      "delta": 0,
+      "collected": 178,
+      "delta": 30,
       "minGoal": 42,
       "maxGoal": 55,
       "candidatesTotal": 19,
@@ -20,12 +20,12 @@
       "name_de": "Liste für internationale Zusammenarbeit (LIZ) Kreis Gießen",
       "name_uk": "Список міжнародної співпраці (ЛІЗ) округ Гіссен",
       "name_en":"List for International Cooperation (LIZ) District of Gießen",
-      "collected": 67,
-      "delta": 60,
+      "collected": 80,
+      "delta": 45,
       "minGoal": 42,
       "maxGoal": 55,
       "candidatesTotal": 20,
-      "docsSubmitted": 10
+      "docsSubmitted": 18
     },
     {
       "id": "stadt",
@@ -33,8 +33,8 @@
       "name_de": "Ukraine Liste (UL) Stadt Gießen",
       "name_uk": "Український список (УЛ) місто Гіссен",
       "name_en":"Ukraine List (UL) City of Gießen",
-      "collected": 128,
-      "delta": 0,
+      "collected": 154,
+      "delta": 30,
       "minGoal": 62,
       "maxGoal": 78,
       "candidatesTotal": 16,
@@ -46,12 +46,12 @@
       "name_de": "Kurdistan Liste (KURD) Stadt Gießen",
       "name_uk": "Курдистанський список (КУРД) місто Гіссен",
       "name_en":"Kurdistan List (KURD) City of Gießen",
-      "collected": 41,
-      "delta": 41,
+      "collected": 75,
+      "delta": 24,
       "minGoal": 62,
       "maxGoal": 78,
       "candidatesTotal": 9,
-      "docsSubmitted": 6
+      "docsSubmitted": 8
     }
   ]
 }
